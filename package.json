@@ -1,16 +1,17 @@
 {
-  "name": "elm-lang-brunch",
-  "version": "2.0.0",
-  "description": "Adds Elm support to Brunch.",
-  "author": "Karl Spalding Wall",
-  "homepage": "https://github.com/karlspalding/elm-lang-brunch",
+  "name": "elm-fancy-brunch",
+  "version": "1.0.0",
+  "description": "Elm support for brunch, with error display.",
+  "author": "Matthew Cheely",
+  "homepage": "https://github.com/MattCheely/elm-fancy-brunch",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:/karlspalding/elm-lang-brunch.git"
+    "url": "git@github.com:/MattCheely/elm-fancy-brunch.git"
   },
   "scripts": {
-    "test": "node_modules/.bin/eslint index.js test.js && node_modules/.bin/mocha"
+    "test":
+      "node_modules/.bin/eslint index.js test.js && node_modules/.bin/mocha"
   },
   "dependencies": {
     "elm": "^0.18.0",

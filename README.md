@@ -1,13 +1,10 @@
-[![Build Status](https://travis-ci.org/karlspalding/elm-lang-brunch.svg?branch=master)](https://travis-ci.org/karlspalding/elm-lang-brunch)
-[![NPM Package](https://img.shields.io/npm/v/elm-lang-brunch.svg)](https://www.npmjs.org/package/elm-lang-brunch)
-
-elm-lang-brunch
+elm-fancy-brunch
 ===================
 
 Adds [elm](http://elm-lang.org) support to [brunch](http://brunch.io).
 
 ## Install
-	npm install --save-dev elm-lang-brunch
+	npm install --save-dev elm-fancy-brunch
 
 ## Usage
 
@@ -26,6 +23,7 @@ The following defaults can be overridden in `brunch-config.js`:
     elm: {
       "exposed-modules": [],
       "source-directories": [],
+      renderErrors: false,
       parameters: ['--warn', '--yes']
     }
   }
@@ -39,6 +37,9 @@ parsed from that file if it is present. These two fields determine
 what modules to compile and where to find them.
 
 The `parameters` array is passed as additional arguments to `elm-make`.
+
+The `renderError` option will build an app that renders complier output
+when compilation fails. It's best when used with a plugin like `auto-reload-brunch`. Don't forget to disable it for production builds!
 
 ## Example
 

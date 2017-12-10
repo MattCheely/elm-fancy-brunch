@@ -92,6 +92,7 @@ view model =
             , "background-color" => "black"
             , "color" => "rgb(233, 235, 235)"
             , "font-family" => "monospace"
+            , "text-align" => "left"
             ]
         ]
         [ div

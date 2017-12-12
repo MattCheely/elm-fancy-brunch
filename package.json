@@ -1,6 +1,6 @@
 {
   "name": "elm-fancy-brunch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Elm support for brunch, with error display.",
   "author": "Matthew Cheely",
   "homepage": "https://github.com/MattCheely/elm-fancy-brunch",
@@ -10,10 +10,10 @@
     "url": "git@github.com:/MattCheely/elm-fancy-brunch.git"
   },
   "scripts": {
-    "test":
-      "node_modules/.bin/eslint index.js test.js && node_modules/.bin/mocha"
+    "test": "node_modules/.bin/eslint index.js test.js && node_modules/.bin/mocha"
   },
   "dependencies": {
+    "cross-spawn": "^5.1.0",
     "elm": "^0.18.0",
     "glob": "^7.1.2"
   },

@@ -4,7 +4,7 @@ var fs = require('fs');
 var url = require('url');
 var path = require('path');
 var glob = require('glob');
-var child_process = require('child_process');
+var spawn = require('cross-spawn');
 var make = require.resolve('elm/binwrappers/elm-make');
 var errorFile = require.resolve('./Errors.elm');
 
@@ -25,16 +25,21 @@ class ElmLangCompiler {
         }).map(module => {
             return path.parse(module);
         }).map(module => {
-            return path.join(module.dir.slice(1), module.name);   
+            return path.join(module.dir.slice(1), module.name);
         })[0];
     }
 
     _compile (file, module) {
         let output = path.join(this.config.output, module + '.js');
 
-        child_process.execFileSync(make, this.config.parameters.concat([
+        let res = spawn.sync(make, this.config.parameters.concat([
             '--output', output, file.path
         ]));
+
+        if (res.status > 0) {
+            console.log(`\n${res.stderr.toString('ascii')}\n`);
+            throw res;
+        }
 
         return fs.readFileSync(output, 'utf8');
     }
@@ -47,10 +52,14 @@ class ElmLangCompiler {
         let displayError = `
             document.body.style.backgroundColor = "#000";
             module.exports.Errors.fullscreen(\`${escaped}\`);`;
-            
-        child_process.execFileSync(make, this.config.parameters.concat([
+
+       let res = spawn.sync(make, this.config.parameters.concat([
             '--output', output, errorFile
-        ]));
+       ]));
+
+        if (res.status > 0) {
+            throw res;
+        }
 
         return fs.readFileSync(output, 'utf8') + displayError;
     }

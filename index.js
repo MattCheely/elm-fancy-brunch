@@ -1,12 +1,11 @@
 'use strict';
 
-var fs = require('fs');
-var url = require('url');
-var path = require('path');
-var glob = require('glob');
-var spawn = require('cross-spawn');
-var make = require.resolve('elm/binwrappers/elm-make');
-var errorFile = require.resolve('./Errors.elm');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const glob = require('glob');
+const compiler = require('node-elm-compiler');
+const errorFile = require.resolve('./Errors.elm');
 
 class ElmLangCompiler {
     _parse (filename, fallback) {
@@ -29,74 +28,24 @@ class ElmLangCompiler {
         })[0];
     }
 
-    _compile (file, module) {
-        let output = path.join(this.config.output, module + '.js');
-
-        let res = spawn.sync(make, this.config.parameters.concat([
-            '--output', output, file.path
-        ]));
-
-        if (res.status > 0) {
-            console.log(`\n${res.stderr.toString('ascii')}\n`);
-            throw res;
-        }
-
-        return fs.readFileSync(output, 'utf8');
-    }
-
-    _fallbackCompile(error, module) {
-        let output = path.join(this.config.output, module + '.js');
-
-        let errorText = error.stderr.toString();
-        let escaped = errorText.replace(/`/g, '\\`');
-        let displayError = `
-            document.body.style.backgroundColor = "#000";
-            module.exports.Errors.fullscreen(\`${escaped}\`);`;
-
-       let res = spawn.sync(make, this.config.parameters.concat([
-            '--output', output, errorFile
-       ]));
-
-        if (res.status > 0) {
-            throw res;
-        }
-
-        return fs.readFileSync(output, 'utf8') + displayError;
+    _compile (file) {
+        return compiler.compileToString(file.path, this.config.compilerOptions);
     }
 
     constructor (config) {
         this.config = {
-            compile: this._compile,
-            fallbackCompile: this._fallbackCompile,
-            parameters: ['--warn', '--yes'],
-            output: null,
+            compilerOptions: {
+                debug: true
+            },
             renderErrors: false,
             'exposed-modules': [],
             'source-directories': []
         };
         
-        let local = this._parse('elm-package.json', {
-            'repository': 'https://github.com/user/project.git',
-            'exposed-modules': [],
-            'version': '2.0.0'
+        let local = this._parse('elm.json', {
+            'source-directories': ['app']
         });
         
-        let elm = this._parse(require.resolve('elm/package.json'), {
-            'version': '0.18.0'
-        });
-        
-        let project = path.parse(url.parse(local.repository).path);
-
-        this.config.output = [
-            'elm-stuff',
-            'build-artifacts',
-            elm.version,
-            project.dir.slice(1),
-            project.name,
-            local.version 
-        ].join('/');
-
-        this.config['exposed-modules'] = local['exposed-modules'] || [];
         this.config['source-directories'] = local['source-directories'] || [];
 
         config = config && config.plugins && config.plugins.elm || {};
@@ -104,16 +53,7 @@ class ElmLangCompiler {
     }
 
     getDependencies (file) {
-        let module = this._module(file);
-        if(this.config['exposed-modules'].indexOf(module) < 0) {
-            return Promise.resolve([]);
-        } else {
-            let deps = this.config['source-directories']
-                .reduce((acc, dir) => {
-                    return acc.concat(glob.sync(`${dir}/**/*.elm`));
-                }, []);
-            return Promise.resolve(deps);
-        }
+        return compiler.findAllDependencies(file.path);
     }
 
     compile (file) {
@@ -122,16 +62,11 @@ class ElmLangCompiler {
         if (this.config['exposed-modules'].indexOf(module) < 0) {
             return Promise.resolve(null);
         } else {
-            try {
-                file.data = this.config.compile.call(this, file, module);
-            } catch (err) {
-                if (this.config.renderErrors) {
-                    file.data = this.config.fallbackCompile.call(this, err, module);
-                } else {
-                    return Promise.reject(err);
-                }
-            }
-            return Promise.resolve(file);
+            return this._compile.call(this, file)
+                    .then((js) => {
+                        file.data = js;
+                        return file;
+                    });
         }
     }
 

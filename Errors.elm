@@ -34,6 +34,7 @@ module Errors exposing (main)
 -}
 
 import Char
+import Browser exposing element
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import String
@@ -41,7 +42,7 @@ import String
 
 main : Program String Model msg
 main =
-    Html.programWithFlags
+    Browser.element
         { init = init
         , update = update
         , view = view

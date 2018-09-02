@@ -1,13 +1,12 @@
 'use strict';
 
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
-const glob = require('glob');
 const compiler = require('node-elm-compiler');
 const errorFile = require.resolve('./Errors.elm');
 
 class ElmLangCompiler {
+
     _parse (filename, fallback) {
         try {
             return JSON.parse(fs.readFileSync(filename, 'utf8'));
@@ -29,10 +28,16 @@ class ElmLangCompiler {
     }
 
     _compile (file) {
-        return compiler.compileToString(file.path, this.config.compilerOptions);
+        let options = Object.assign({
+            output: this._runId++ + ".js"
+        }, this.config.compilerOptions);
+
+        return compiler.compileToString(file.path, options);
     }
 
     constructor (config) {
+        this._runId = 0;
+
         this.config = {
             compilerOptions: {
                 debug: true

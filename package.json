@@ -1,6 +1,6 @@
 {
   "name": "elm-fancy-brunch",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Elm support for brunch, with error display.",
   "author": "Matthew Cheely",
   "homepage": "https://github.com/MattCheely/elm-fancy-brunch",
